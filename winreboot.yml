@@ -1,5 +1,5 @@
 ---
-- hosts: {{server}}
+- hosts: win1.example.com
   tasks:
 # Apply updates and reboot if necessary
   # - name: Performing Windows updates...
