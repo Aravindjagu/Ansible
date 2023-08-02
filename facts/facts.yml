@@ -1,0 +1,9 @@
+---
+- name: Fact usage
+  hosts: all
+  tasks:
+    - name: Prints various Ansible facts
+      debug:
+       msg: >
+        The current time on {{ ansible_facts['fqdn'] }}
+        is {{ ansible_facts['date_time']['time'] }}
