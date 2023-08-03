@@ -1,13 +1,8 @@
 ---
-- name: Example Playbook for Windows
+- name: Display and Save Running Services on Windows
   hosts: win1.example.com
   gather_facts: no
 
   tasks:
-    - name: Perform a Windows task
-      win_shell: Get-Process
-      register: process_output
-
-    - name: Display Windows task output
-      debug:
-        var: process_output.stdout_lines
+    - name: Get running services
+      win_shell: Get-Service | Where-Object { $_.Status -eq 'Running' } | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\running_services.html"
