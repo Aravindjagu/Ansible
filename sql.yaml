@@ -5,13 +5,58 @@
 
   tasks:
     - name: Get System Information
-      win_shell: Get-CimInstance Win32_ComputerSystem | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
+      win_shell: |
+        $systemInfo = Get-CimInstance Win32_ComputerSystem
+        $osInfo = Get-CimInstance Win32_OperatingSystem
 
-    - name: Get Operating System Information
-      win_shell: Get-CimInstance Win32_OperatingSystem | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
+        $html = @"
+        <h1>System Information</h1>
+        <table>
+        <tr><th>Computer Name</th><td>$($systemInfo.Name)</td></tr>
+        <tr><th>Manufacturer</th><td>$($systemInfo.Manufacturer)</td></tr>
+        <tr><th>Model</th><td>$($systemInfo.Model)</td></tr>
+        <tr><th>OS Version</th><td>$($osInfo.Caption) $($osInfo.Version) ($($osInfo.OSArchitecture))</td></tr>
+        </table>
+        "@
+
+        $html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
 
     - name: Get Disk Usage
-      win_shell: Get-WmiObject Win32_LogicalDisk | Select-Object DeviceID, DriveType, VolumeName, Size, FreeSpace | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
+      win_shell: |
+        $disks = Get-WmiObject Win32_LogicalDisk
+        $html = @"
+        <h1>Disk Usage</h1>
+        <table>
+        <tr><th>Drive</th><th>Volume Name</th><th>Total Size (GB)</th><th>Free Space (GB)</th></tr>
+        "@
+
+        foreach ($disk in $disks) {
+          $drive = $disk.DeviceID
+          $volume = $disk.VolumeName
+          $sizeGB = [math]::Round($disk.Size / 1GB, 2)
+          $freeSpaceGB = [math]::Round($disk.FreeSpace / 1GB, 2)
+
+          $html += "<tr><td>$drive</td><td>$volume</td><td>$sizeGB</td><td>$freeSpaceGB</td></tr>"
+        }
+
+        $html += "</table>"
+        $html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
 
     - name: Get Running Services
-      win_shell: Get-Service | Where-Object { $_.Status -eq 'Running' } | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
+      win_shell: |
+        $services = Get-Service | Where-Object { $_.Status -eq 'Running' }
+        $html = @"
+        <h1>Running Services</h1>
+        <table>
+        <tr><th>Service Name</th><th>Status</th></tr>
+        "@
+
+        foreach ($service in $services) {
+          $serviceName = $service.Name
+          $status = $service.Status
+
+          $html += "<tr><td>$serviceName</td><td>$status</td></tr>"
+        }
+
+        $html += "</table>"
+        $html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
