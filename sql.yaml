@@ -5,7 +5,10 @@
 
   tasks:
     - name: Get System Information
-      win_shell: Get-CimInstance Win32_ComputerSystem, Win32_OperatingSystem | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
+      win_shell: Get-CimInstance Win32_ComputerSystem | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
+
+    - name: Get Operating System Information
+      win_shell: Get-CimInstance Win32_OperatingSystem | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
 
     - name: Get Disk Usage
       win_shell: Get-WmiObject Win32_LogicalDisk | Select-Object DeviceID, DriveType, VolumeName, Size, FreeSpace | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
