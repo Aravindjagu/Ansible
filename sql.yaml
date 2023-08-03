@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure PostgreSQL Database
-  hosts: database_servers
+  hosts: win1.example.com
   tasks:
     - name: Install PostgreSQL
       apt:
