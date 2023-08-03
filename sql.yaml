@@ -1,6 +1,6 @@
 ---
 - name: Configure Windows Server
-  hosts: win1.example.com
+  hosts: windows
   gather_facts: no
 
   tasks:
@@ -16,3 +16,33 @@
         state: present
         groups: "{{ item.groups }}"
       loop: "{{ user_accounts }}"
+
+    - name: Configure Firewall Rules
+      win_firewall_rule:
+        name: "Allow HTTP"
+        direction: in
+        action: allow
+        protocol: tcp
+        localport: 80
+
+    - name: Install .NET Framework
+      win_chocolatey:
+        name: dotnet5.0
+        state: present
+      when: ansible_os_family == 'Windows'
+
+    - name: Create Scheduled Task
+      win_scheduled_task:
+        name: "My Scheduled Task"
+        description: "My scheduled task description"
+        actions:
+          - path: "powershell.exe"
+            arguments: "-command \"Write-Output 'Hello from My Scheduled Task'\""
+        triggers:
+          - type: daily
+            start_time: "00:00"
+            random_delay: "00:00:30"
+            frequency: daily
+            interval: 1
+            enabled: true
+      when: ansible_os_family == 'Windows'
