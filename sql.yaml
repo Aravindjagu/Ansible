@@ -1,6 +1,6 @@
 ---
 - name: Configure Windows Server
-  hosts: win1.example.com
+  hosts: windows
   gather_facts: no
 
   tasks:
@@ -29,7 +29,7 @@
       win_chocolatey:
         name: dotnet5.0
         state: present
-      when: ansible_os_family == 'Windows'
+      when: ansible_facts['os_family'] == 'Windows'
 
     - name: Create Scheduled Task
       win_scheduled_task:
@@ -45,4 +45,4 @@
             frequency: daily
             interval: 1
             enabled: true
-      when: ansible_os_family == 'Windows'
+      when: ansible_facts['os_family'] == 'Windows'
