@@ -1,55 +1,18 @@
 ---
-- name: Windows Server Configuration
+- name: Configure Windows Server
   hosts: win1.example.com
   gather_facts: no
 
   tasks:
-    - name: Get System Information
-      # Health check tasks from the previous playbook
-
-    - name: Get Software Information
-      win_product_facts:
-      register: software_info
-
-    - name: Print Software Information
-      debug:
-        var: software_info
+    - name: Install IIS and Start Service
+      win_feature:
+        name: Web-Server
+        state: present
 
     - name: Create User Accounts
       win_user:
         name: "{{ item.name }}"
         password: "{{ item.password }}"
         state: present
-        password_never_expires: yes
-        password_expired: no
-        update_password: on_create
-      loop:
-        - { name: "user1", password: "P@ssw0rd1" }  # A more complex password
-        - { name: "user2", password: "P@ssw0rd2" }  # Another complex password
-
-    - name: Install IIS and Start Service
-      win_feature:
-        name: Web-Server
-        state: present
-
-    - name: Configure Firewall Rules
-      win_firewall_rule:
-        name: "Allow HTTP"
-        direction: in
-        action: allow
-        protocol: tcp
-        localport: 80
-
-    - name: Create Scheduled Task
-      win_scheduled_task:
-        name: "My Scheduled Task"
-        description: "My scheduled task description"
-        actions:
-          - path: "powershell.exe"
-            arguments: "-command \"Write-Output 'Hello from My Scheduled Task'\""
-        state: present
-
-    - name: Ensure Service is Running
-      win_service:
-        name: "MyService"
-        state: started
+        groups: "{{ item.groups }}"
+      loop: "{{ user_accounts }}"
