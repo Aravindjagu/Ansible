@@ -1,11 +1,13 @@
 ---
-- name: Install Microsoft SQL Server
+- name: Example Playbook for Windows
   hosts: win1.example.com
   gather_facts: no
 
   tasks:
-    - name: Install SQL Server
-      win_chocolatey:
-        name: sql-server-express
-        state: present
-      become: yes
+    - name: Perform a Windows task
+      win_command: Get-Process
+      register: process_output
+
+    - name: Display Windows task output
+      debug:
+        var: process_output.stdout_lines
