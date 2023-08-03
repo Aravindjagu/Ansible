@@ -1,0 +1,12 @@
+---
+- name: Create a local user
+  hosts: all
+
+  tasks:
+    - name: "{{ user_name }}"
+      win_user:
+        name: "{{ user_name }}"
+        password: "{{ user_password }}"
+        state: "{{ user_state }}"
+        groups:
+          - "{{ user_group }}"
