@@ -5,21 +5,7 @@
 
   tasks:
     - name: Get System Information
-      win_shell: |
-        $systemInfo = Get-CimInstance Win32_ComputerSystem
-        $osInfo = Get-CimInstance Win32_OperatingSystem
-
-        $html = @"
-        <h1>System Information</h1>
-        <table>
-        <tr><th>Computer Name</th><td>$($systemInfo.Name)</td></tr>
-        <tr><th>Manufacturer</th><td>$($systemInfo.Manufacturer)</td></tr>
-        <tr><th>Model</th><td>$($systemInfo.Model)</td></tr>
-        <tr><th>OS Version</th><td>$($osInfo.Caption) $($osInfo.Version) ($($osInfo.OSArchitecture))</td></tr>
-        </table>
-        "@
-
-        $html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
+      # Health check tasks from the previous playbook
 
     - name: Get Software Information
       win_product_facts:
@@ -35,8 +21,8 @@
         password: "{{ item.password }}"
         state: present
       loop:
-        - { name: "user1", password: "password1" }
-        - { name: "user2", password: "password2" }
+        - { name: "user1", password: "P@ssw0rd1" }  # A more complex password
+        - { name: "user2", password: "P@ssw0rd2" }  # Another complex password
 
     - name: Install IIS and Start Service
       win_feature:
