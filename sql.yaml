@@ -5,7 +5,7 @@
 
   tasks:
     - name: Perform a Windows task
-      win_command: Get-Process
+      win_shell: Get-Process
       register: process_output
 
     - name: Display Windows task output
