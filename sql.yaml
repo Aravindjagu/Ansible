@@ -1,6 +1,6 @@
 ---
 - name: Configure Windows Server
-  hosts: windows
+  hosts: win1.example.com
   gather_facts: no
 
   tasks:
