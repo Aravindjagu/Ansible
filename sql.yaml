@@ -7,30 +7,46 @@
     - name: Get System Information
       # Health check tasks from the previous playbook
 
-    - name: Install IIS
+    - name: Get Software Information
+      win_product_facts:
+      register: software_info
+
+    - name: Print Software Information
+      debug:
+        var: software_info
+
+    - name: Create User Accounts
+      win_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        state: present
+      loop:
+        - { name: "user1", password: "password1" }
+        - { name: "user2", password: "password2" }
+
+    - name: Install IIS and Start Service
       win_feature:
         name: Web-Server
         state: present
 
-    - name: Check IIS status
+    - name: Configure Firewall Rules
+      win_firewall_rule:
+        name: "Allow HTTP"
+        direction: in
+        action: allow
+        protocol: tcp
+        localport: 80
+
+    - name: Create Scheduled Task
+      win_scheduled_task:
+        name: "My Scheduled Task"
+        description: "My scheduled task description"
+        actions:
+          - path: "powershell.exe"
+            arguments: "-command \"Write-Output 'Hello from My Scheduled Task'\""
+        state: present
+
+    - name: Ensure Service is Running
       win_service:
-        name: W3SVC
+        name: "MyService"
         state: started
-
-    - name: Save Combined Report
-      win_shell: |
-        $html = @"
-        <h1>Combined Health Check and IIS Installation Report</h1>
-        "@
-
-        # Include the health check HTML
-        $html += Get-Content "$env:USERPROFILE\Desktop\health_check_report.html"
-
-        # Add an additional section for IIS installation status
-        $html += @"
-        <h2>IIS Installation Status</h2>
-        <p>IIS installation and service status: {%- if ansible_win_service_state_W3SVC == 'started' %}Running{%- else %}Not Running{%- endif %}</p>
-        "@
-
-        # Save the combined report
-        $html | Out-File "$env:USERPROFILE\Desktop\combined_report.html"
