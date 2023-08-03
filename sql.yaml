@@ -1,34 +1,11 @@
 ---
-- name: Install and Configure PostgreSQL Database
+- name: Install Microsoft SQL Server
   hosts: win1.example.com
+  gather_facts: no
+
   tasks:
-    - name: Install PostgreSQL
-      apt:
-        name: postgresql
+    - name: Install SQL Server
+      win_chocolatey:
+        name: sql-server-express
         state: present
       become: yes
-
-    - name: Start PostgreSQL service
-      service:
-        name: postgresql
-        state: started
-      become: yes
-
-    - name: Create database and user
-      postgresql_db:
-        name: my_database
-        state: present
-        login_user: postgres
-        login_password: my_password
-        login_host: localhost
-        login_port: 5432
-        encoding: UTF-8
-
-    - name: Create database user
-      postgresql_user:
-        name: my_user
-        password: my_user_password
-        login_user: postgres
-        login_password: my_password
-        login_host: localhost
-        login_port: 5432
