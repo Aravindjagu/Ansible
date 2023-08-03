@@ -1,8 +1,14 @@
 ---
-- name: Display and Save Running Services on Windows
+- name: Windows Health Check
   hosts: win1.example.com
   gather_facts: no
 
   tasks:
-    - name: Get running services
-      win_shell: Get-Service | Where-Object { $_.Status -eq 'Running' } | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\running_services.html"
+    - name: Get System Information
+      win_shell: Get-CimInstance Win32_ComputerSystem, Win32_OperatingSystem | ConvertTo-Html | Out-File "$env:USERPROFILE\Desktop\health_check_report.html"
+
+    - name: Get Disk Usage
+      win_shell: Get-WmiObject Win32_LogicalDisk | Select-Object DeviceID, DriveType, VolumeName, Size, FreeSpace | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
+
+    - name: Get Running Services
+      win_shell: Get-Service | Where-Object { $_.Status -eq 'Running' } | ConvertTo-Html | Out-File -Append "$env:USERPROFILE\Desktop\health_check_report.html"
