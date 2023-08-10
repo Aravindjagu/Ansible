@@ -1,0 +1,55 @@
+---
+- name: Configure Windows Servers
+  hosts: win1.example.com
+  gather_facts: no
+
+  tasks:
+    - name: Install Chocolatey Package Manager
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force;
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+    - name: Install Packages using Chocolatey
+      win_chocolatey:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - googlechrome
+        - vscode
+        - git
+
+    - name: Create User Accounts
+      win_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        state: present
+      loop:
+        - { name: "user1", password: "Passw0rd!" }
+        - { name: "user2", password: "Secure123!" }
+
+    - name: Ensure Directory Permissions
+      win_acl:
+        path: "C:\\example_directory"
+        state: present
+        type: directory
+        user: "user1"
+        rights: "full_control"
+
+    - name: Configure Windows Firewall
+      win_firewall_rule:
+        name: "Allow HTTP"
+        localport: 80
+        action: allow
+        direction: in
+
+    - name: Create Scheduled Task
+      win_scheduled_task:
+        name: "BackupTask"
+        description: "Backup important files"
+        actions:
+          - path: "C:\\backup_script.ps1"
+            arguments: "-backup"
+        trigger:
+          - type: daily
+            start_boundary: "2023-08-15T08:00:00"
+        enabled: yes
